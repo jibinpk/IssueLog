@@ -1,0 +1,122 @@
+Build a secure, fully offline CRUD web application for logging technical support issues related to WordPress and WooCommerce plugins. The app must run on MAMP (Apache + PHP + MariaDB) and store all data locally with no external API or cloud service integrations. Use Material Design 3 Expressive UI for all frontend components.
+
+🧩 Key Features:
+1. CRUD Functionality
+Create, view, update, and delete support log entries
+
+Use modals or separate pages for add/edit forms
+
+2. Fields for Each Log Entry
+Date (auto-generated)
+
+Internal Client Reference ID (text)
+
+Plugin Name (dropdown: PDF Invoice, Product Feed, Gift Cards, etc.)
+
+Plugin Version (text)
+
+WordPress Version (text)
+
+WooCommerce Version (text)
+
+Issue Category (dropdown: Activation, Template Issue, Export/Import, etc.)
+
+Issue Summary (short text)
+
+Detailed Description (paragraph)
+
+Steps to Reproduce (paragraph)
+
+Errors/Logs (paragraph – no PII)
+
+Troubleshooting Steps Taken (paragraph)
+
+Resolution (paragraph)
+
+Time Spent (number – minutes)
+
+Escalated to Dev Team? (Yes/No)
+
+Status (dropdown: Open, Resolved, Escalated)
+
+Recurring Issue? (Yes/No)
+
+3. Views (à la Notion-style)
+Table View (default)
+
+Kanban View grouped by Status
+
+Grouped List View (group by Plugin Name or Issue Category)
+
+(Optional) Calendar View (by date submitted)
+
+4. Search & Filters
+Search across summary, plugin name, errors/logs
+
+Filter by status, plugin, category, recurring, escalated
+
+5. Import/Export
+Export logs as CSV and JSON
+
+Import logs from validated CSV or JSON
+
+Handle duplicate detection via Client Reference ID
+
+6. Dashboard Page
+Include a dashboard with:
+
+Total logs
+
+Open / Resolved / Escalated counts
+
+Recurring issues count
+
+Average time spent
+
+Charts (Chart.js or equivalent):
+
+Pie chart: Issue categories
+
+Bar chart: Logs by plugin
+
+Line chart: Issues over time
+
+Donut chart: Recurring vs non-recurring
+
+7. Privacy & Security
+No collection of PII (names, emails, order info, URLs)
+
+Local-only access (localhost or LAN)
+
+Simple session-based login (static admin credentials)
+
+Use prepared statements and escape output
+
+CSRF protection
+
+8. UI/UX
+Mobile-friendly, responsive design
+
+Styled with Material 3 (Expressive Design)
+
+Color-coded statuses
+
+Tabbed layout for navigation: Dashboard, Logs, Import/Export, Settings
+
+⚙️ Technical Stack:
+Frontend: HTML, CSS, JS, Material 3 Components
+
+Backend: PHP 8+
+
+Database: MariaDB
+
+Server: MAMP (local Apache + MariaDB)
+
+🛠️ Additional Notes:
+Do not use any online services (e.g., Firebase, Google Sheets, external APIs)
+
+Must work fully offline
+
+Save data persistently in local MariaDB
+
+Store imports/exports in a local /uploads/ or /exports/ folder
