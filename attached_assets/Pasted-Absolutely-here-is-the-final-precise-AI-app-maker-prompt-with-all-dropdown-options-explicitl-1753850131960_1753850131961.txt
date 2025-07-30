@@ -1,0 +1,180 @@
+Absolutely — here is the **final precise AI app maker prompt** with **all dropdown options explicitly included**, based on the WebToffee support form. It is structured for maximum compatibility with app builder AIs (e.g. Retool, Budibase, Appsmith) and is ready for copy-pasting.
+
+---
+
+### ✅ Precise Prompt for AI App Builder (Fully Offline WebToffee Support Log App)
+
+---
+
+**Build a local-only internal support log web application** to track support requests for **WebToffee WordPress/WooCommerce plugins**. The app must be **fully offline**, run on **MAMP (Apache + PHP + MariaDB)**, and include full **CRUD operations**, **multi-view display**, **import/export features**, and a **Material Design 3 Expressive UI**.
+
+---
+
+### 🔧 Backend Requirements:
+
+* Server: MAMP (Apache + PHP)
+* Database: MariaDB (local only)
+* All data handled/stored locally
+* No use of external APIs or cloud integrations
+
+---
+
+### 🧾 Form Fields (per log entry):
+
+1. **Date Submitted** *(auto-generated)*
+2. **Plugin Name** *(dropdown — see below)*
+3. **Issue Type** *(dropdown: `Technical`, `Pre-sale`, `Account/Billing`)*
+4. **Concern Area** *(dropdown — optional; examples below)*
+5. **Query Title** *(short text)*
+6. **Description** *(long text)*
+7. **Steps to Reproduce** *(long text)*
+8. **Error Logs or Console Output** *(long text, no PII)*
+9. **WordPress Version** *(text)*
+10. **WooCommerce Version** *(text)*
+11. **Plugin Version** *(text)*
+12. **Assigned Agent** *(text – internal use)*
+13. **Time Spent (minutes)** *(numeric)*
+14. **Recurring Issue?** *(dropdown: `Yes`, `No`)*
+15. **Escalated to Dev Team?** *(dropdown: `Yes`, `No`)*
+16. **Status** *(dropdown: `Open`, `Resolved`, `Escalated`, `Closed`)*
+17. **Resolution Notes** *(long text)*
+
+---
+
+### 📥 Plugin Name Options (WebToffee Plugins):
+
+```
+PDF Invoices, Packing Slips and Credit Notes
+Order, Coupon, Subscription Export Import
+Import Export Suite
+Product Import Export
+WooCommerce Gift Cards
+WooCommerce Product Feed & Sync Manager
+WooCommerce Request a Quote
+WooCommerce Address Labels
+WooCommerce Best Sellers
+WooCommerce Coupon Generator
+WooCommerce Picklists
+WooCommerce Product Recommendations
+WooCommerce Proforma Invoices
+WooCommerce Shipping & Delivery Notes
+WooCommerce Stripe Payment Gateway
+Sequential Order Numbers
+Smart Coupons
+GDPR Cookie Consent (CCPA Ready)
+Remote Print Add-on
+QR Code Add-on
+PayPal Express Checkout Gateway
+WordPress Backup and Migration
+Users & Customers Import Export
+Frequently Bought Together
+Display Discounts
+Other
+```
+
+---
+
+### 📂 Concern Area Options (sample, editable per plugin):
+
+```
+License Activation
+Plugin Setup
+Template Customization
+Export/Import Issues
+Compatibility Issues
+Payment Gateway Setup
+Display/Layout Bug
+Translation/Language
+Multisite Support
+Refund/Upgrade Questions
+Billing Issues
+Account Access
+Other
+```
+
+---
+
+### 🧩 Required Features:
+
+#### ✅ CRUD:
+
+* Create, view, update, delete support logs
+
+#### ✅ Views:
+
+* **Table View** (default, filterable/sortable)
+* **Kanban View** (grouped by `Status`)
+* **Grouped View** (by `Plugin Name` or `Issue Type`)
+* **Calendar View** (by `Date Submitted`)
+* **Dashboard View** (charts + metrics)
+
+#### ✅ Search & Filters:
+
+* Live search across `Title`, `Plugin`, and `Description`
+* Filters:
+
+  * Plugin Name
+  * Issue Type
+  * Status
+  * Recurrence
+  * Escalation
+
+---
+
+### 📤 Import / Export:
+
+* **Export** filtered or full logs as `CSV` and `JSON`
+* **Import** logs from `CSV/JSON` with field validation and duplicate detection
+* Save exports/imports in local folders (`/exports`, `/uploads`)
+
+---
+
+### 📊 Dashboard Metrics:
+
+* Total Logs
+* Open / Resolved / Escalated / Closed Counts
+* Recurring Issues %
+* Average Time to Resolution
+* **Charts** (using Chart.js or local library):
+
+  * Pie Chart: Logs by Plugin
+  * Bar Chart: Issue Categories
+  * Line Chart: Submissions Over Time
+  * Donut Chart: Recurring vs Non-Recurring
+
+---
+
+### 🔐 Privacy & Security:
+
+* No collection of personal data (PII): no names, emails, domains, orders, etc.
+* Static admin login (username + password)
+* Session-based access
+* CSRF protection
+* Input sanitization with prepared SQL statements
+
+---
+
+### 🎨 UI/UX:
+
+* Use **Material 3 Expressive Design**
+* Responsive and mobile-friendly
+* Tabs or sidebar navigation: `Logs`, `Dashboard`, `Import/Export`, `Settings`
+* Modals for Add/Edit
+* Color-coded status indicators
+
+---
+
+### ⚙️ Tech Stack Summary:
+
+| Component    | Tech                                         |
+| ------------ | -------------------------------------------- |
+| Server       | MAMP (Apache + PHP)                          |
+| Backend      | PHP 8+                                       |
+| Database     | MariaDB                                      |
+| UI Framework | Material 3 (Web Components or CSS Framework) |
+| Charts       | Chart.js (self-hosted)                       |
+| Deployment   | Fully local, no internet                     |
+
+---
+
+Let me know if you'd like this translated into a schema format (e.g., JSON for Retool, YAML for Budibase) or code scaffolding!
