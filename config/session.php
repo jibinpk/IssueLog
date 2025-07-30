@@ -1,19 +1,29 @@
 <?php
-// Session configuration
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_strict_mode', 1);
-ini_set('session.cookie_samesite', 'Strict');
-
-if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-    ini_set('session.cookie_secure', 1);
+// Session configuration - ensure this runs before any output
+if (session_status() === PHP_SESSION_NONE) {
+    // Set session configuration before starting session
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.cookie_samesite', 'Strict');
+    
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        ini_set('session.cookie_secure', 1);
+    }
+    
+    // Set session name
+    session_name('SUPPORT_LOG_SESSION');
+    
+    // Set session lifetime (4 hours)
+    ini_set('session.gc_maxlifetime', 14400);
+    session_set_cookie_params([
+        'lifetime' => 14400,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
 }
-
-// Set session name
-session_name('SUPPORT_LOG_SESSION');
-
-// Set session lifetime (4 hours)
-ini_set('session.gc_maxlifetime', 14400);
-session_set_cookie_params(14400);
 
 // Custom session handler using database
 class DatabaseSessionHandler implements SessionHandlerInterface {

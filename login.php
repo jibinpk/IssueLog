@@ -1,5 +1,18 @@
 <?php
-session_start();
+// Check if application is installed
+if (!file_exists('config/installed.lock')) {
+    header('Location: install.php');
+    exit;
+}
+
+// Initialize session configuration first
+require_once 'config/session.php';
+
+// Start session after configuration
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'includes/auth.php';
 require_once 'includes/csrf.php';
 require_once 'config/database.php';

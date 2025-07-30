@@ -203,10 +203,9 @@ function validateLogForm() {
     
     // Required fields validation
     const requiredFields = [
-        { id: 'client-ref', name: 'Client Reference ID' },
         { id: 'plugin-select', name: 'Plugin Name' },
-        { id: 'category-select', name: 'Issue Category' },
-        { id: 'issue-summary', name: 'Issue Summary' },
+        { id: 'issue-type-select', name: 'Issue Type' },
+        { id: 'query-title', name: 'Query Title' },
         { id: 'status-select', name: 'Status' }
     ];
     
@@ -223,10 +222,10 @@ function validateLogForm() {
         errors.push('Time spent must be a positive number');
     }
     
-    // Client reference format validation (basic)
-    const clientRef = document.getElementById('client-ref').value.trim();
-    if (clientRef && clientRef.length < 3) {
-        errors.push('Client Reference ID must be at least 3 characters');
+    // Query title validation
+    const queryTitle = document.getElementById('query-title').value.trim();
+    if (queryTitle && queryTitle.length < 3) {
+        errors.push('Query Title must be at least 3 characters');
     }
     
     return errors;

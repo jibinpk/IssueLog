@@ -19,13 +19,13 @@ try {
     // Get all logs
     $stmt = $pdo->query("
         SELECT 
-            id, date_created, client_ref, plugin_name, plugin_version,
-            wp_version, wc_version, issue_category, issue_summary,
-            detailed_description, steps_reproduce, errors_logs,
-            troubleshooting_steps, resolution, time_spent,
-            escalated, status, recurring
+            id, date_submitted, plugin_name, issue_type, concern_area,
+            query_title, description, steps_reproduce, error_logs,
+            wp_version, wc_version, plugin_version, assigned_agent,
+            time_spent, recurring_issue, escalated_to_dev, status,
+            resolution_notes
         FROM support_logs 
-        ORDER BY date_created DESC
+        ORDER BY date_submitted DESC
     ");
     $logs = $stmt->fetchAll();
     
@@ -66,11 +66,11 @@ function exportToCSV($logs, $filepath) {
     
     // Write header
     $header = [
-        'ID', 'Date Created', 'Client Ref', 'Plugin Name', 'Plugin Version',
-        'WordPress Version', 'WooCommerce Version', 'Issue Category',
-        'Issue Summary', 'Detailed Description', 'Steps to Reproduce',
-        'Errors/Logs', 'Troubleshooting Steps', 'Resolution', 'Time Spent',
-        'Escalated', 'Status', 'Recurring'
+        'ID', 'Date Submitted', 'Plugin Name', 'Issue Type', 'Concern Area',
+        'Query Title', 'Description', 'Steps to Reproduce', 'Error Logs',
+        'WordPress Version', 'WooCommerce Version', 'Plugin Version',
+        'Assigned Agent', 'Time Spent', 'Recurring Issue', 'Escalated to Dev',
+        'Status', 'Resolution Notes'
     ];
     fputcsv($fp, $header);
     
@@ -78,23 +78,23 @@ function exportToCSV($logs, $filepath) {
     foreach ($logs as $log) {
         $row = [
             $log['id'],
-            $log['date_created'],
-            $log['client_ref'],
+            $log['date_submitted'],
             $log['plugin_name'],
-            $log['plugin_version'],
+            $log['issue_type'],
+            $log['concern_area'],
+            $log['query_title'],
+            $log['description'],
+            $log['steps_reproduce'],
+            $log['error_logs'],
             $log['wp_version'],
             $log['wc_version'],
-            $log['issue_category'],
-            $log['issue_summary'],
-            $log['detailed_description'],
-            $log['steps_reproduce'],
-            $log['errors_logs'],
-            $log['troubleshooting_steps'],
-            $log['resolution'],
+            $log['plugin_version'],
+            $log['assigned_agent'],
             $log['time_spent'],
-            $log['escalated'] ? 'Yes' : 'No',
+            $log['recurring_issue'],
+            $log['escalated_to_dev'],
             $log['status'],
-            $log['recurring'] ? 'Yes' : 'No'
+            $log['resolution_notes']
         ];
         fputcsv($fp, $row);
     }
@@ -103,12 +103,7 @@ function exportToCSV($logs, $filepath) {
 }
 
 function exportToJSON($logs, $filepath) {
-    // Convert boolean values for JSON
-    foreach ($logs as &$log) {
-        $log['escalated'] = (bool)$log['escalated'];
-        $log['recurring'] = (bool)$log['recurring'];
-    }
-    
+    // Data is already in the correct format with the new schema
     $json = json_encode($logs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     
     if (file_put_contents($filepath, $json) === false) {

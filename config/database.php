@@ -35,24 +35,23 @@ function initializeDatabase() {
     // Create support_logs table
     $sql = "CREATE TABLE IF NOT EXISTS support_logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
-        client_ref VARCHAR(255) NOT NULL,
+        date_submitted DATETIME DEFAULT CURRENT_TIMESTAMP,
         plugin_name VARCHAR(255) NOT NULL,
-        plugin_version VARCHAR(100),
+        issue_type ENUM('Technical', 'Pre-sale', 'Account/Billing') NOT NULL,
+        concern_area VARCHAR(255),
+        query_title VARCHAR(500) NOT NULL,
+        description TEXT,
+        steps_reproduce TEXT,
+        error_logs TEXT,
         wp_version VARCHAR(100),
         wc_version VARCHAR(100),
-        issue_category VARCHAR(255) NOT NULL,
-        issue_summary VARCHAR(500) NOT NULL,
-        detailed_description TEXT,
-        steps_reproduce TEXT,
-        errors_logs TEXT,
-        troubleshooting_steps TEXT,
-        resolution TEXT,
+        plugin_version VARCHAR(100),
+        assigned_agent VARCHAR(255),
         time_spent INT DEFAULT 0,
-        escalated BOOLEAN DEFAULT FALSE,
-        status ENUM('Open', 'Resolved', 'Escalated') DEFAULT 'Open',
-        recurring BOOLEAN DEFAULT FALSE,
-        UNIQUE KEY unique_client_ref (client_ref)
+        recurring_issue ENUM('Yes', 'No') DEFAULT 'No',
+        escalated_to_dev ENUM('Yes', 'No') DEFAULT 'No',
+        status ENUM('Open', 'Resolved', 'Escalated', 'Closed') DEFAULT 'Open',
+        resolution_notes TEXT
     )";
     
     $pdo->exec($sql);

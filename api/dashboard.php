@@ -32,7 +32,7 @@ try {
     }
     
     // Recurring issues count
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM support_logs WHERE recurring = 1");
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM support_logs WHERE recurring_issue = 'Yes'");
     $stats['recurring_logs'] = $stmt->fetch()['count'];
     
     // Average time spent
@@ -44,7 +44,7 @@ try {
     $chartData = [];
     
     // Issue categories chart
-    $stmt = $pdo->query("SELECT issue_category, COUNT(*) as count FROM support_logs GROUP BY issue_category ORDER BY count DESC");
+    $stmt = $pdo->query("SELECT concern_area, COUNT(*) as count FROM support_logs GROUP BY concern_area ORDER BY count DESC");
     $chartData['categories'] = $stmt->fetchAll();
     
     // Plugins chart
@@ -53,10 +53,10 @@ try {
     
     // Issues over time (last 30 days)
     $stmt = $pdo->query("
-        SELECT DATE(date_created) as date, COUNT(*) as count 
+        SELECT DATE(date_submitted) as date, COUNT(*) as count 
         FROM support_logs 
-        WHERE date_created >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
-        GROUP BY DATE(date_created) 
+        WHERE date_submitted >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
+        GROUP BY DATE(date_submitted) 
         ORDER BY date
     ");
     $chartData['time_series'] = $stmt->fetchAll();
@@ -64,10 +64,10 @@ try {
     // Recurring vs non-recurring
     $stmt = $pdo->query("
         SELECT 
-            CASE WHEN recurring = 1 THEN 'Recurring' ELSE 'Non-recurring' END as type,
+            CASE WHEN recurring_issue = 'Yes' THEN 'Recurring' ELSE 'Non-recurring' END as type,
             COUNT(*) as count 
         FROM support_logs 
-        GROUP BY recurring
+        GROUP BY recurring_issue
     ");
     $chartData['recurring'] = $stmt->fetchAll();
     

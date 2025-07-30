@@ -268,11 +268,11 @@ function renderTableView() {
     currentLogs.forEach(log => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${formatDate(log.date_created)}</td>
-            <td>${escapeHtml(log.client_ref)}</td>
+            <td>${formatDate(log.date_submitted)}</td>
             <td>${escapeHtml(log.plugin_name)}</td>
-            <td>${escapeHtml(log.issue_category)}</td>
-            <td>${escapeHtml(log.issue_summary)}</td>
+            <td>${escapeHtml(log.issue_type)}</td>
+            <td>${escapeHtml(log.concern_area)}</td>
+            <td>${escapeHtml(log.query_title)}</td>
             <td><span class="status-badge ${getStatusClass(log.status)}">${log.status}</span></td>
             <td>${log.time_spent} min</td>
             <td>
@@ -322,10 +322,10 @@ function renderKanbanView() {
             card.className = 'kanban-card';
             card.onclick = () => editLog(log.id);
             card.innerHTML = `
-                <div class="kanban-card-title">${escapeHtml(log.issue_summary)}</div>
-                <div class="kanban-card-meta">Client: ${escapeHtml(log.client_ref)}</div>
+                <div class="kanban-card-title">${escapeHtml(log.query_title)}</div>
                 <div class="kanban-card-meta">Plugin: ${escapeHtml(log.plugin_name)}</div>
-                <div class="kanban-card-meta">Category: ${escapeHtml(log.issue_category)}</div>
+                <div class="kanban-card-meta">Type: ${escapeHtml(log.issue_type)}</div>
+                <div class="kanban-card-meta">Area: ${escapeHtml(log.concern_area)}</div>
                 <div class="kanban-card-meta">Time: ${log.time_spent} min</div>
             `;
             container.appendChild(card);
@@ -370,9 +370,9 @@ function renderGroupedView() {
             item.className = 'grouped-item';
             item.innerHTML = `
                 <div>
-                    <div>${escapeHtml(log.issue_summary)}</div>
+                    <div>${escapeHtml(log.query_title)}</div>
                     <div style="font-size: 0.875rem; color: var(--md-sys-color-on-surface-variant);">
-                        ${escapeHtml(log.client_ref)} • ${formatDate(log.date_created)}
+                        ${escapeHtml(log.plugin_name)} • ${formatDate(log.date_submitted)}
                     </div>
                 </div>
                 <div>
@@ -413,22 +413,22 @@ function editLog(id) {
     
     // Populate form with log data
     document.getElementById('log-id').value = log.id;
-    document.getElementById('client-ref').value = log.client_ref;
+    document.getElementById('issue-type-select').value = log.issue_type;
     document.getElementById('plugin-select').value = log.plugin_name;
     document.getElementById('plugin-version').value = log.plugin_version || '';
     document.getElementById('wp-version').value = log.wp_version || '';
     document.getElementById('wc-version').value = log.wc_version || '';
-    document.getElementById('category-select').value = log.issue_category;
-    document.getElementById('issue-summary').value = log.issue_summary;
-    document.getElementById('detailed-description').value = log.detailed_description || '';
+    document.getElementById('category-select').value = log.concern_area;
+    document.getElementById('query-title').value = log.query_title;
+    document.getElementById('description').value = log.description || '';
     document.getElementById('steps-reproduce').value = log.steps_reproduce || '';
-    document.getElementById('errors-logs').value = log.errors_logs || '';
-    document.getElementById('troubleshooting-steps').value = log.troubleshooting_steps || '';
-    document.getElementById('resolution').value = log.resolution || '';
+    document.getElementById('error-logs').value = log.error_logs || '';
+    document.getElementById('assigned-agent').value = log.assigned_agent || '';
+    document.getElementById('resolution-notes').value = log.resolution_notes || '';
     document.getElementById('time-spent').value = log.time_spent || '';
-    document.getElementById('escalated').checked = log.escalated == 1;
+    document.getElementById('escalated-select').value = log.escalated_to_dev || 'No';
+    document.getElementById('recurring-select').value = log.recurring_issue || 'No';
     document.getElementById('status-select').value = log.status;
-    document.getElementById('recurring').checked = log.recurring == 1;
     
     document.getElementById('modal-title').textContent = 'Edit Log Entry';
     window.logModal.open();

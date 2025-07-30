@@ -101,59 +101,60 @@ function insertSampleData() {
     // Sample log entries for demonstration
     $sampleLogs = [
         [
-            'client_ref' => 'WP-2024-001',
             'plugin_name' => 'PDF Invoice',
-            'plugin_version' => '2.3.1',
+            'issue_type' => 'Technical',
+            'concern_area' => 'Template/Design customization',
+            'query_title' => 'Invoice template not displaying custom fields correctly',
+            'description' => 'Customer reported that custom checkout fields are not appearing in the PDF invoice template. The fields are visible in the admin but missing from generated PDFs.',
+            'steps_reproduce' => '1. Add custom checkout fields\n2. Complete a test order\n3. Generate PDF invoice\n4. Notice missing custom field data',
+            'error_logs' => 'No specific error logs, but custom fields array appears empty in PDF generation',
             'wp_version' => '6.4.2',
             'wc_version' => '8.5.1',
-            'issue_category' => 'Template Issue',
-            'issue_summary' => 'Invoice template not displaying custom fields correctly',
-            'detailed_description' => 'Customer reported that custom checkout fields are not appearing in the PDF invoice template. The fields are visible in the admin but missing from generated PDFs.',
-            'steps_reproduce' => '1. Add custom checkout fields\n2. Complete a test order\n3. Generate PDF invoice\n4. Notice missing custom field data',
-            'errors_logs' => 'No specific error logs, but custom fields array appears empty in PDF generation',
-            'troubleshooting_steps' => 'Checked template files, verified custom field settings, tested with default template',
-            'resolution' => 'Updated template hook priority to ensure custom fields are available during PDF generation',
+            'plugin_version' => '2.3.1',
+            'assigned_agent' => 'Sarah Johnson',
             'time_spent' => 45,
-            'escalated' => 0,
+            'recurring_issue' => 'No',
+            'escalated_to_dev' => 'No',
             'status' => 'Resolved',
-            'recurring' => 0
+            'resolution_notes' => 'Updated template hook priority to ensure custom fields are available during PDF generation'
         ],
         [
-            'client_ref' => 'WC-2024-002',
             'plugin_name' => 'Product Feed',
-            'plugin_version' => '1.8.3',
+            'issue_type' => 'Technical',
+            'concern_area' => 'Product/Order export',
+            'query_title' => 'Feed generation timing out for large catalogs',
+            'description' => 'Client with 5000+ products experiencing timeouts during feed generation process.',
+            'steps_reproduce' => '1. Navigate to feed settings\n2. Generate feed for all products\n3. Process times out after 30 seconds',
+            'error_logs' => 'PHP Fatal error: Maximum execution time of 30 seconds exceeded',
             'wp_version' => '6.4.2',
             'wc_version' => '8.5.1',
-            'issue_category' => 'Performance',
-            'issue_summary' => 'Feed generation timing out for large catalogs',
-            'detailed_description' => 'Client with 5000+ products experiencing timeouts during feed generation process.',
-            'steps_reproduce' => '1. Navigate to feed settings\n2. Generate feed for all products\n3. Process times out after 30 seconds',
-            'errors_logs' => 'PHP Fatal error: Maximum execution time of 30 seconds exceeded',
-            'troubleshooting_steps' => 'Increased PHP max_execution_time, tested with smaller batches',
-            'resolution' => '',
+            'plugin_version' => '1.8.3',
+            'assigned_agent' => 'Mike Chen',
             'time_spent' => 60,
-            'escalated' => 1,
+            'recurring_issue' => 'No',
+            'escalated_to_dev' => 'Yes',
             'status' => 'Escalated',
-            'recurring' => 0
+            'resolution_notes' => ''
         ]
     ];
     
     $sql = "INSERT INTO support_logs (
-        client_ref, plugin_name, plugin_version, wp_version, wc_version,
-        issue_category, issue_summary, detailed_description, steps_reproduce,
-        errors_logs, troubleshooting_steps, resolution, time_spent,
-        escalated, status, recurring
+        plugin_name, issue_type, concern_area, query_title, description,
+        steps_reproduce, error_logs, wp_version, wc_version, plugin_version,
+        assigned_agent, time_spent, recurring_issue, escalated_to_dev,
+        status, resolution_notes
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $pdo->prepare($sql);
     
     foreach ($sampleLogs as $log) {
         $stmt->execute([
-            $log['client_ref'], $log['plugin_name'], $log['plugin_version'],
-            $log['wp_version'], $log['wc_version'], $log['issue_category'],
-            $log['issue_summary'], $log['detailed_description'], $log['steps_reproduce'],
-            $log['errors_logs'], $log['troubleshooting_steps'], $log['resolution'],
-            $log['time_spent'], $log['escalated'], $log['status'], $log['recurring']
+            $log['plugin_name'], $log['issue_type'], $log['concern_area'],
+            $log['query_title'], $log['description'], $log['steps_reproduce'],
+            $log['error_logs'], $log['wp_version'], $log['wc_version'],
+            $log['plugin_version'], $log['assigned_agent'], $log['time_spent'],
+            $log['recurring_issue'], $log['escalated_to_dev'], $log['status'],
+            $log['resolution_notes']
         ]);
     }
 }

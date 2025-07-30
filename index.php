@@ -1,5 +1,18 @@
 <?php
-session_start();
+// Check if application is installed
+if (!file_exists('config/installed.lock')) {
+    header('Location: install.php');
+    exit;
+}
+
+// Initialize session configuration first
+require_once 'config/session.php';
+
+// Start session after configuration
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'includes/auth.php';
 require_once 'includes/csrf.php';
 
@@ -219,10 +232,10 @@ $csrf_token = generateCSRFToken();
                                             <thead>
                                                 <tr>
                                                     <th>Date</th>
-                                                    <th>Client Ref</th>
                                                     <th>Plugin</th>
-                                                    <th>Category</th>
-                                                    <th>Summary</th>
+                                                    <th>Issue Type</th>
+                                                    <th>Concern Area</th>
+                                                    <th>Query Title</th>
                                                     <th>Status</th>
                                                     <th>Time</th>
                                                     <th>Actions</th>
@@ -260,7 +273,8 @@ $csrf_token = generateCSRFToken();
                                     <label>Group by:</label>
                                     <select id="group-by" class="mdc-select__native-control">
                                         <option value="plugin_name">Plugin Name</option>
-                                        <option value="issue_category">Issue Category</option>
+                                        <option value="concern_area">Concern Area</option>
+                                        <option value="issue_type">Issue Type</option>
                                     </select>
                                 </div>
                                 <div id="grouped-content"></div>
@@ -317,12 +331,18 @@ $csrf_token = generateCSRFToken();
                         <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         
                         <div class="form-row">
-                            <div class="mdc-text-field mdc-text-field--outlined">
-                                <input type="text" id="client-ref" name="client_ref" class="mdc-text-field__input" required>
-                                <div class="mdc-notched-outline">
-                                    <div class="mdc-notched-outline__leading"></div>
-                                    <div class="mdc-notched-outline__notch">
-                                        <label for="client-ref" class="mdc-floating-label">Client Reference ID</label>
+                            <div class="mdc-select mdc-select--outlined">
+                                <div class="mdc-select__anchor">
+                                    <select id="issue-type-select" name="issue_type" class="mdc-select__native-control" required>
+                                        <option value="" disabled selected></option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Pre-sale">Pre-sale</option>
+                                        <option value="Account/Billing">Account/Billing</option>
+                                    </select>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="issue-type-select" class="mdc-floating-label">Issue Type</label>
                                     </div>
                                     <div class="mdc-notched-outline__trailing"></div>
                                 </div>
@@ -413,26 +433,26 @@ $csrf_token = generateCSRFToken();
                         </div>
 
                         <div class="form-row">
-                            <select name="issue_category" id="category-select" class="mdc-select__native-control" required>
-                                <option value="">Select Category</option>
-                                <option value="Activation">Activation</option>
-                                <option value="Template Issue">Template Issue</option>
-                                <option value="Export/Import">Export/Import</option>
-                                <option value="Configuration">Configuration</option>
-                                <option value="Performance">Performance</option>
-                                <option value="Compatibility">Compatibility</option>
-                                <option value="Bug Report">Bug Report</option>
-                                <option value="Feature Request">Feature Request</option>
+                            <select name="concern_area" id="category-select" class="mdc-select__native-control" required>
+                                <option value="">Select Concern Area</option>
+                                <option value="Plugin activation">Plugin activation</option>
+                                <option value="Configuration and compatibility">Configuration and compatibility</option>
+                                <option value="Export issues">Export issues</option>
+                                <option value="Logs and errors">Logs and errors</option>
+                                <option value="Template/Design customization">Template/Design customization</option>
+                                <option value="Product/Order export">Product/Order export</option>
+                                <option value="Feature request">Feature request</option>
+                                <option value="Other">Other</option>
                             </select>
                         </div>
 
                         <div class="form-row">
                             <div class="mdc-text-field mdc-text-field--outlined">
-                                <input type="text" id="issue-summary" name="issue_summary" class="mdc-text-field__input" required>
+                                <input type="text" id="query-title" name="query_title" class="mdc-text-field__input" required>
                                 <div class="mdc-notched-outline">
                                     <div class="mdc-notched-outline__leading"></div>
                                     <div class="mdc-notched-outline__notch">
-                                        <label for="issue-summary" class="mdc-floating-label">Issue Summary</label>
+                                        <label for="query-title" class="mdc-floating-label">Query Title</label>
                                     </div>
                                     <div class="mdc-notched-outline__trailing"></div>
                                 </div>
@@ -441,11 +461,11 @@ $csrf_token = generateCSRFToken();
 
                         <div class="form-row">
                             <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea">
-                                <textarea id="detailed-description" name="detailed_description" class="mdc-text-field__input" rows="3"></textarea>
+                                <textarea id="description" name="description" class="mdc-text-field__input" rows="3"></textarea>
                                 <div class="mdc-notched-outline">
                                     <div class="mdc-notched-outline__leading"></div>
                                     <div class="mdc-notched-outline__notch">
-                                        <label for="detailed-description" class="mdc-floating-label">Detailed Description</label>
+                                        <label for="description" class="mdc-floating-label">Description</label>
                                     </div>
                                     <div class="mdc-notched-outline__trailing"></div>
                                 </div>
@@ -467,11 +487,24 @@ $csrf_token = generateCSRFToken();
 
                         <div class="form-row">
                             <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea">
-                                <textarea id="errors-logs" name="errors_logs" class="mdc-text-field__input" rows="3"></textarea>
+                                <textarea id="error-logs" name="error_logs" class="mdc-text-field__input" rows="3"></textarea>
                                 <div class="mdc-notched-outline">
                                     <div class="mdc-notched-outline__leading"></div>
                                     <div class="mdc-notched-outline__notch">
-                                        <label for="errors-logs" class="mdc-floating-label">Errors/Logs (No PII)</label>
+                                        <label for="error-logs" class="mdc-floating-label">Error Logs (No PII)</label>
+                                    </div>
+                                    <div class="mdc-notched-outline__trailing"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="mdc-text-field mdc-text-field--outlined">
+                                <input type="text" id="assigned-agent" name="assigned_agent" class="mdc-text-field__input">
+                                <div class="mdc-notched-outline">
+                                    <div class="mdc-notched-outline__leading"></div>
+                                    <div class="mdc-notched-outline__notch">
+                                        <label for="assigned-agent" class="mdc-floating-label">Assigned Agent</label>
                                     </div>
                                     <div class="mdc-notched-outline__trailing"></div>
                                 </div>
@@ -480,24 +513,11 @@ $csrf_token = generateCSRFToken();
 
                         <div class="form-row">
                             <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea">
-                                <textarea id="troubleshooting-steps" name="troubleshooting_steps" class="mdc-text-field__input" rows="3"></textarea>
+                                <textarea id="resolution-notes" name="resolution_notes" class="mdc-text-field__input" rows="3"></textarea>
                                 <div class="mdc-notched-outline">
                                     <div class="mdc-notched-outline__leading"></div>
                                     <div class="mdc-notched-outline__notch">
-                                        <label for="troubleshooting-steps" class="mdc-floating-label">Troubleshooting Steps Taken</label>
-                                    </div>
-                                    <div class="mdc-notched-outline__trailing"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea">
-                                <textarea id="resolution" name="resolution" class="mdc-text-field__input" rows="3"></textarea>
-                                <div class="mdc-notched-outline">
-                                    <div class="mdc-notched-outline__leading"></div>
-                                    <div class="mdc-notched-outline__notch">
-                                        <label for="resolution" class="mdc-floating-label">Resolution</label>
+                                        <label for="resolution-notes" class="mdc-floating-label">Resolution Notes</label>
                                     </div>
                                     <div class="mdc-notched-outline__trailing"></div>
                                 </div>
@@ -517,31 +537,37 @@ $csrf_token = generateCSRFToken();
                             </div>
                         </div>
 
-                        <div class="form-row checkboxes">
-                            <div class="mdc-form-field">
-                                <div class="mdc-checkbox">
-                                    <input type="checkbox" class="mdc-checkbox__native-control" id="escalated" name="escalated" value="1">
-                                    <div class="mdc-checkbox__background">
-                                        <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
-                                            <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path>
-                                        </svg>
-                                        <div class="mdc-checkbox__mixedmark"></div>
+                        <div class="form-row">
+                            <div class="mdc-select mdc-select--outlined">
+                                <div class="mdc-select__anchor">
+                                    <select id="escalated-select" name="escalated_to_dev" class="mdc-select__native-control">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="escalated-select" class="mdc-floating-label">Escalated to Dev</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
                                     </div>
                                 </div>
-                                <label for="escalated">Escalated to Dev Team</label>
                             </div>
-
-                            <div class="mdc-form-field">
-                                <div class="mdc-checkbox">
-                                    <input type="checkbox" class="mdc-checkbox__native-control" id="recurring" name="recurring" value="1">
-                                    <div class="mdc-checkbox__background">
-                                        <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
-                                            <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path>
-                                        </svg>
-                                        <div class="mdc-checkbox__mixedmark"></div>
+                            
+                            <div class="mdc-select mdc-select--outlined">
+                                <div class="mdc-select__anchor">
+                                    <select id="recurring-select" name="recurring_issue" class="mdc-select__native-control">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="recurring-select" class="mdc-floating-label">Recurring Issue</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
                                     </div>
                                 </div>
-                                <label for="recurring">Recurring Issue</label>
                             </div>
                         </div>
 

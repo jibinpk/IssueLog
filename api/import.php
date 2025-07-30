@@ -77,22 +77,22 @@ function importFromCSV($filepath, $pdo) {
     
     // Map CSV columns to database fields
     $fieldMap = [
-        'Client Ref' => 'client_ref',
         'Plugin Name' => 'plugin_name',
-        'Plugin Version' => 'plugin_version',
+        'Issue Type' => 'issue_type',
+        'Concern Area' => 'concern_area',
+        'Query Title' => 'query_title',
+        'Description' => 'description',
+        'Steps to Reproduce' => 'steps_reproduce',
+        'Error Logs' => 'error_logs',
         'WordPress Version' => 'wp_version',
         'WooCommerce Version' => 'wc_version',
-        'Issue Category' => 'issue_category',
-        'Issue Summary' => 'issue_summary',
-        'Detailed Description' => 'detailed_description',
-        'Steps to Reproduce' => 'steps_reproduce',
-        'Errors/Logs' => 'errors_logs',
-        'Troubleshooting Steps' => 'troubleshooting_steps',
-        'Resolution' => 'resolution',
+        'Plugin Version' => 'plugin_version',
+        'Assigned Agent' => 'assigned_agent',
         'Time Spent' => 'time_spent',
-        'Escalated' => 'escalated',
+        'Recurring Issue' => 'recurring_issue',
+        'Escalated to Dev' => 'escalated_to_dev',
         'Status' => 'status',
-        'Recurring' => 'recurring'
+        'Resolution Notes' => 'resolution_notes'
     ];
     
     $columnIndexes = [];
@@ -111,8 +111,8 @@ function importFromCSV($filepath, $pdo) {
             foreach ($columnIndexes as $field => $index) {
                 $value = isset($row[$index]) ? trim($row[$index]) : '';
                 
-                if ($field === 'escalated' || $field === 'recurring') {
-                    $data[$field] = in_array(strtolower($value), ['yes', '1', 'true']) ? 1 : 0;
+                if ($field === 'escalated_to_dev' || $field === 'recurring_issue') {
+                    $data[$field] = in_array(strtolower($value), ['yes', '1', 'true']) ? 'Yes' : 'No';
                 } elseif ($field === 'time_spent') {
                     $data[$field] = is_numeric($value) ? intval($value) : 0;
                 } else {
@@ -133,7 +133,7 @@ function importFromCSV($filepath, $pdo) {
                 $imported++;
             } else {
                 $skipped++;
-                $errors[] = "Line {$lineNumber}: Duplicate client reference ID";
+                $errors[] = "Line {$lineNumber}: Failed to insert entry";
             }
             
         } catch (Exception $e) {
@@ -176,22 +176,22 @@ function importFromJSON($filepath, $pdo) {
         try {
             // Sanitize and prepare data
             $logData = [
-                'client_ref' => sanitizeInput($entry['client_ref'] ?? ''),
                 'plugin_name' => sanitizeInput($entry['plugin_name'] ?? ''),
-                'plugin_version' => sanitizeInput($entry['plugin_version'] ?? ''),
+                'issue_type' => sanitizeInput($entry['issue_type'] ?? ''),
+                'concern_area' => sanitizeInput($entry['concern_area'] ?? ''),
+                'query_title' => sanitizeInput($entry['query_title'] ?? ''),
+                'description' => sanitizeInput($entry['description'] ?? ''),
+                'steps_reproduce' => sanitizeInput($entry['steps_reproduce'] ?? ''),
+                'error_logs' => sanitizeInput($entry['error_logs'] ?? ''),
                 'wp_version' => sanitizeInput($entry['wp_version'] ?? ''),
                 'wc_version' => sanitizeInput($entry['wc_version'] ?? ''),
-                'issue_category' => sanitizeInput($entry['issue_category'] ?? ''),
-                'issue_summary' => sanitizeInput($entry['issue_summary'] ?? ''),
-                'detailed_description' => sanitizeInput($entry['detailed_description'] ?? ''),
-                'steps_reproduce' => sanitizeInput($entry['steps_reproduce'] ?? ''),
-                'errors_logs' => sanitizeInput($entry['errors_logs'] ?? ''),
-                'troubleshooting_steps' => sanitizeInput($entry['troubleshooting_steps'] ?? ''),
-                'resolution' => sanitizeInput($entry['resolution'] ?? ''),
+                'plugin_version' => sanitizeInput($entry['plugin_version'] ?? ''),
+                'assigned_agent' => sanitizeInput($entry['assigned_agent'] ?? ''),
                 'time_spent' => intval($entry['time_spent'] ?? 0),
-                'escalated' => isset($entry['escalated']) && $entry['escalated'] ? 1 : 0,
+                'recurring_issue' => sanitizeInput($entry['recurring_issue'] ?? 'No'),
+                'escalated_to_dev' => sanitizeInput($entry['escalated_to_dev'] ?? 'No'),
                 'status' => sanitizeInput($entry['status'] ?? 'Open'),
-                'recurring' => isset($entry['recurring']) && $entry['recurring'] ? 1 : 0
+                'resolution_notes' => sanitizeInput($entry['resolution_notes'] ?? '')
             ];
             
             // Validate required fields
@@ -207,7 +207,7 @@ function importFromJSON($filepath, $pdo) {
                 $imported++;
             } else {
                 $skipped++;
-                $errors[] = "Entry {$lineNumber}: Duplicate client reference ID";
+                $errors[] = "Entry {$lineNumber}: Failed to insert entry";
             }
             
         } catch (Exception $e) {
@@ -226,19 +226,20 @@ function importFromJSON($filepath, $pdo) {
 function insertLogEntry($data, $pdo) {
     try {
         $sql = "INSERT INTO support_logs (
-            client_ref, plugin_name, plugin_version, wp_version, wc_version,
-            issue_category, issue_summary, detailed_description, steps_reproduce,
-            errors_logs, troubleshooting_steps, resolution, time_spent,
-            escalated, status, recurring
+            plugin_name, issue_type, concern_area, query_title, description,
+            steps_reproduce, error_logs, wp_version, wc_version, plugin_version,
+            assigned_agent, time_spent, recurring_issue, escalated_to_dev,
+            status, resolution_notes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $pdo->prepare($sql);
         return $stmt->execute([
-            $data['client_ref'], $data['plugin_name'], $data['plugin_version'],
-            $data['wp_version'], $data['wc_version'], $data['issue_category'],
-            $data['issue_summary'], $data['detailed_description'], $data['steps_reproduce'],
-            $data['errors_logs'], $data['troubleshooting_steps'], $data['resolution'],
-            $data['time_spent'], $data['escalated'], $data['status'], $data['recurring']
+            $data['plugin_name'], $data['issue_type'], $data['concern_area'],
+            $data['query_title'], $data['description'], $data['steps_reproduce'],
+            $data['error_logs'], $data['wp_version'], $data['wc_version'],
+            $data['plugin_version'], $data['assigned_agent'], $data['time_spent'],
+            $data['recurring_issue'], $data['escalated_to_dev'], $data['status'],
+            $data['resolution_notes']
         ]);
         
     } catch (PDOException $e) {

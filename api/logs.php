@@ -46,7 +46,7 @@ function handleGetRequest() {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (issue_summary LIKE ? OR plugin_name LIKE ? OR errors_logs LIKE ?)";
+        $sql .= " AND (query_title LIKE ? OR plugin_name LIKE ? OR description LIKE ?)";
         $searchTerm = "%{$search}%";
         $params[] = $searchTerm;
         $params[] = $searchTerm;
@@ -64,23 +64,23 @@ function handleGetRequest() {
     }
     
     if (!empty($category)) {
-        $sql .= " AND issue_category = ?";
+        $sql .= " AND concern_area = ?";
         $params[] = $category;
     }
     
-    if ($recurring === 'true') {
-        $sql .= " AND recurring = 1";
-    } elseif ($recurring === 'false') {
-        $sql .= " AND recurring = 0";
+    if ($recurring === 'Yes') {
+        $sql .= " AND recurring_issue = 'Yes'";
+    } elseif ($recurring === 'No') {
+        $sql .= " AND recurring_issue = 'No'";
     }
     
-    if ($escalated === 'true') {
-        $sql .= " AND escalated = 1";
-    } elseif ($escalated === 'false') {
-        $sql .= " AND escalated = 0";
+    if ($escalated === 'Yes') {
+        $sql .= " AND escalated_to_dev = 'Yes'";
+    } elseif ($escalated === 'No') {
+        $sql .= " AND escalated_to_dev = 'No'";
     }
     
-    $sql .= " ORDER BY date_created DESC";
+    $sql .= " ORDER BY date_submitted DESC";
     
     try {
         $stmt = $pdo->prepare($sql);
@@ -97,22 +97,22 @@ function handlePostRequest() {
     global $pdo;
     
     $data = [
-        'client_ref' => sanitizeInput($_POST['client_ref'] ?? ''),
         'plugin_name' => sanitizeInput($_POST['plugin_name'] ?? ''),
-        'plugin_version' => sanitizeInput($_POST['plugin_version'] ?? ''),
+        'issue_type' => sanitizeInput($_POST['issue_type'] ?? ''),
+        'concern_area' => sanitizeInput($_POST['concern_area'] ?? ''),
+        'query_title' => sanitizeInput($_POST['query_title'] ?? ''),
+        'description' => sanitizeInput($_POST['description'] ?? ''),
+        'steps_reproduce' => sanitizeInput($_POST['steps_reproduce'] ?? ''),
+        'error_logs' => sanitizeInput($_POST['error_logs'] ?? ''),
         'wp_version' => sanitizeInput($_POST['wp_version'] ?? ''),
         'wc_version' => sanitizeInput($_POST['wc_version'] ?? ''),
-        'issue_category' => sanitizeInput($_POST['issue_category'] ?? ''),
-        'issue_summary' => sanitizeInput($_POST['issue_summary'] ?? ''),
-        'detailed_description' => sanitizeInput($_POST['detailed_description'] ?? ''),
-        'steps_reproduce' => sanitizeInput($_POST['steps_reproduce'] ?? ''),
-        'errors_logs' => sanitizeInput($_POST['errors_logs'] ?? ''),
-        'troubleshooting_steps' => sanitizeInput($_POST['troubleshooting_steps'] ?? ''),
-        'resolution' => sanitizeInput($_POST['resolution'] ?? ''),
+        'plugin_version' => sanitizeInput($_POST['plugin_version'] ?? ''),
+        'assigned_agent' => sanitizeInput($_POST['assigned_agent'] ?? ''),
         'time_spent' => intval($_POST['time_spent'] ?? 0),
-        'escalated' => isset($_POST['escalated']) ? 1 : 0,
+        'recurring_issue' => sanitizeInput($_POST['recurring_issue'] ?? 'No'),
+        'escalated_to_dev' => sanitizeInput($_POST['escalated_to_dev'] ?? 'No'),
         'status' => sanitizeInput($_POST['status'] ?? 'Open'),
-        'recurring' => isset($_POST['recurring']) ? 1 : 0
+        'resolution_notes' => sanitizeInput($_POST['resolution_notes'] ?? '')
     ];
     
     // Validate data
@@ -123,19 +123,20 @@ function handlePostRequest() {
     
     try {
         $sql = "INSERT INTO support_logs (
-            client_ref, plugin_name, plugin_version, wp_version, wc_version,
-            issue_category, issue_summary, detailed_description, steps_reproduce,
-            errors_logs, troubleshooting_steps, resolution, time_spent,
-            escalated, status, recurring
+            plugin_name, issue_type, concern_area, query_title, description,
+            steps_reproduce, error_logs, wp_version, wc_version, plugin_version,
+            assigned_agent, time_spent, recurring_issue, escalated_to_dev,
+            status, resolution_notes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
-            $data['client_ref'], $data['plugin_name'], $data['plugin_version'],
-            $data['wp_version'], $data['wc_version'], $data['issue_category'],
-            $data['issue_summary'], $data['detailed_description'], $data['steps_reproduce'],
-            $data['errors_logs'], $data['troubleshooting_steps'], $data['resolution'],
-            $data['time_spent'], $data['escalated'], $data['status'], $data['recurring']
+            $data['plugin_name'], $data['issue_type'], $data['concern_area'],
+            $data['query_title'], $data['description'], $data['steps_reproduce'],
+            $data['error_logs'], $data['wp_version'], $data['wc_version'],
+            $data['plugin_version'], $data['assigned_agent'], $data['time_spent'],
+            $data['recurring_issue'], $data['escalated_to_dev'], $data['status'],
+            $data['resolution_notes']
         ]);
         
         $logId = $pdo->lastInsertId();
@@ -161,22 +162,22 @@ function handlePutRequest() {
     }
     
     $data = [
-        'client_ref' => sanitizeInput($putData['client_ref'] ?? ''),
         'plugin_name' => sanitizeInput($putData['plugin_name'] ?? ''),
-        'plugin_version' => sanitizeInput($putData['plugin_version'] ?? ''),
+        'issue_type' => sanitizeInput($putData['issue_type'] ?? ''),
+        'concern_area' => sanitizeInput($putData['concern_area'] ?? ''),
+        'query_title' => sanitizeInput($putData['query_title'] ?? ''),
+        'description' => sanitizeInput($putData['description'] ?? ''),
+        'steps_reproduce' => sanitizeInput($putData['steps_reproduce'] ?? ''),
+        'error_logs' => sanitizeInput($putData['error_logs'] ?? ''),
         'wp_version' => sanitizeInput($putData['wp_version'] ?? ''),
         'wc_version' => sanitizeInput($putData['wc_version'] ?? ''),
-        'issue_category' => sanitizeInput($putData['issue_category'] ?? ''),
-        'issue_summary' => sanitizeInput($putData['issue_summary'] ?? ''),
-        'detailed_description' => sanitizeInput($putData['detailed_description'] ?? ''),
-        'steps_reproduce' => sanitizeInput($putData['steps_reproduce'] ?? ''),
-        'errors_logs' => sanitizeInput($putData['errors_logs'] ?? ''),
-        'troubleshooting_steps' => sanitizeInput($putData['troubleshooting_steps'] ?? ''),
-        'resolution' => sanitizeInput($putData['resolution'] ?? ''),
+        'plugin_version' => sanitizeInput($putData['plugin_version'] ?? ''),
+        'assigned_agent' => sanitizeInput($putData['assigned_agent'] ?? ''),
         'time_spent' => intval($putData['time_spent'] ?? 0),
-        'escalated' => isset($putData['escalated']) ? 1 : 0,
+        'recurring_issue' => sanitizeInput($putData['recurring_issue'] ?? 'No'),
+        'escalated_to_dev' => sanitizeInput($putData['escalated_to_dev'] ?? 'No'),
         'status' => sanitizeInput($putData['status'] ?? 'Open'),
-        'recurring' => isset($putData['recurring']) ? 1 : 0
+        'resolution_notes' => sanitizeInput($putData['resolution_notes'] ?? '')
     ];
     
     // Validate data
@@ -187,19 +188,20 @@ function handlePutRequest() {
     
     try {
         $sql = "UPDATE support_logs SET
-            client_ref = ?, plugin_name = ?, plugin_version = ?, wp_version = ?,
-            wc_version = ?, issue_category = ?, issue_summary = ?, detailed_description = ?,
-            steps_reproduce = ?, errors_logs = ?, troubleshooting_steps = ?,
-            resolution = ?, time_spent = ?, escalated = ?, status = ?, recurring = ?
+            plugin_name = ?, issue_type = ?, concern_area = ?, query_title = ?,
+            description = ?, steps_reproduce = ?, error_logs = ?, wp_version = ?,
+            wc_version = ?, plugin_version = ?, assigned_agent = ?, time_spent = ?,
+            recurring_issue = ?, escalated_to_dev = ?, status = ?, resolution_notes = ?
             WHERE id = ?";
         
         $stmt = $pdo->prepare($sql);
         $result = $stmt->execute([
-            $data['client_ref'], $data['plugin_name'], $data['plugin_version'],
-            $data['wp_version'], $data['wc_version'], $data['issue_category'],
-            $data['issue_summary'], $data['detailed_description'], $data['steps_reproduce'],
-            $data['errors_logs'], $data['troubleshooting_steps'], $data['resolution'],
-            $data['time_spent'], $data['escalated'], $data['status'], $data['recurring'], $id
+            $data['plugin_name'], $data['issue_type'], $data['concern_area'],
+            $data['query_title'], $data['description'], $data['steps_reproduce'],
+            $data['error_logs'], $data['wp_version'], $data['wc_version'],
+            $data['plugin_version'], $data['assigned_agent'], $data['time_spent'],
+            $data['recurring_issue'], $data['escalated_to_dev'], $data['status'],
+            $data['resolution_notes'], $id
         ]);
         
         if ($stmt->rowCount() > 0) {

@@ -51,32 +51,40 @@ function successResponse($data = null, $message = 'Success') {
 function validateLogEntry($data) {
     $errors = [];
     
-    if (empty($data['client_ref'])) {
-        $errors[] = 'Client Reference ID is required';
-    }
-    
     if (empty($data['plugin_name'])) {
         $errors[] = 'Plugin Name is required';
     }
     
-    if (empty($data['issue_category'])) {
-        $errors[] = 'Issue Category is required';
+    if (empty($data['issue_type'])) {
+        $errors[] = 'Issue Type is required';
     }
     
-    if (empty($data['issue_summary'])) {
-        $errors[] = 'Issue Summary is required';
+    if (!in_array($data['issue_type'], ['Technical', 'Pre-sale', 'Account/Billing'])) {
+        $errors[] = 'Invalid issue type value';
+    }
+    
+    if (empty($data['query_title'])) {
+        $errors[] = 'Query Title is required';
     }
     
     if (empty($data['status'])) {
         $errors[] = 'Status is required';
     }
     
-    if (!in_array($data['status'], ['Open', 'Resolved', 'Escalated'])) {
+    if (!in_array($data['status'], ['Open', 'Resolved', 'Escalated', 'Closed'])) {
         $errors[] = 'Invalid status value';
     }
     
     if (isset($data['time_spent']) && !is_numeric($data['time_spent'])) {
         $errors[] = 'Time spent must be a number';
+    }
+    
+    if (isset($data['recurring_issue']) && !in_array($data['recurring_issue'], ['Yes', 'No'])) {
+        $errors[] = 'Invalid recurring issue value';
+    }
+    
+    if (isset($data['escalated_to_dev']) && !in_array($data['escalated_to_dev'], ['Yes', 'No'])) {
+        $errors[] = 'Invalid escalated to dev value';
     }
     
     return $errors;
